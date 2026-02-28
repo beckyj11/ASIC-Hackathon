@@ -119,7 +119,7 @@ End with exactly: "This is for educational purposes only and does not constitute
       throw new Error(data.error.message || "API error");
     }
 
-    const text = (data.content?.[0]?.text || "Analysis unavailable.").replace(/\*/g, "");
+    const text = (data.content?.[0]?.text || "Analysis unavailable.").replace(/\*/g, "").replace(/---/g, "");
 
     renderAIResponse(text, resp);
     btn.disabled       = false;
