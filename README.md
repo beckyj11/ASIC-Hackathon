@@ -43,7 +43,7 @@ Just double-click `index.html` to open it in your browser.
 
 ---
 
-## 🤖 Enabling the AI Analysis Feature
+## Enabling the AI Analysis Feature
 
 The "Get AI Advice" button calls the **Anthropic Claude API**. To use it:
 
@@ -62,7 +62,7 @@ apiKey: "YOUR_ANTHROPIC_API_KEY_HERE",
 
 ---
 
-## ⚙️ How It Works
+## How It Works
 
 ### Composite Score Formula
 
