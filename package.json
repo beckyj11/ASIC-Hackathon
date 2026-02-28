@@ -1,0 +1,12 @@
+{
+  "name": "green-green",
+  "version": "1.0.0",
+  "description": "AI-powered S&P 500 green investment calculator",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
