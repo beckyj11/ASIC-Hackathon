@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VERDANT — Green Investment Calculator</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Floating leaf particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🥬</div>
+      <div>
+        <div class="brand-name">GREEN GREEN</div>
+        <div class="brand-sub">Investment Calculator</div>
+      </div>
+    </div>
+    <div class="live-badge">
+      <div class="dot"></div>
+      S&P 500 LIVE
+    </div>
+  </header>
+
+  <!-- ── PAGE ── -->
+  <div class="page">
+
+    <!-- CALCULATOR CARD -->
+    <div class="calc-card">
+      <div class="calc-title">Find Your <span>Best Green Investment</span></div>
+      <div class="calc-sub">
+        Enter your investment amount and priorities. We'll rank the best S&amp;P 500 stocks
+        based on a composite score balancing financial returns and environmental impact.
+      </div>
+
+      <!-- Inputs -->
+      <div class="input-row">
+        <div class="input-group">
+          <div class="input-label">Investment Amount</div>
+          <div class="amount-wrap">
+            <div class="currency-sym">$</div>
+            <input
+              type="number"
+              class="amount-input"
+              id="amountInput"
+              placeholder="1,000"
+              min="1"
+              value="5000"
+            />
+          </div>
+        </div>
+        <div class="input-group">
+          <div class="input-label">Time Horizon</div>
+          <select class="select-field" id="horizonSelect">
+            <option value="1">1 Year</option>
+            <option value="3" selected>3 Years</option>
+            <option value="5">5 Years</option>
+            <option value="10">10 Years</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <div class="input-label">Risk Tolerance</div>
+          <select class="select-field" id="riskSelect">
+            <option value="low">🛡️ Conservative</option>
+            <option value="medium" selected>⚖️ Balanced</option>
+            <option value="high">🚀 Aggressive</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Quick amounts -->
+      <div class="quick-amounts">
+        <span class="qa-label">Quick:</span>
+        <button class="qa" onclick="setAmount(500)">$500</button>
+        <button class="qa" onclick="setAmount(1000)">$1K</button>
+        <button class="qa" onclick="setAmount(5000)">$5K</button>
+        <button class="qa" onclick="setAmount(10000)">$10K</button>
+        <button class="qa" onclick="setAmount(25000)">$25K</button>
+        <button class="qa" onclick="setAmount(50000)">$50K</button>
+        <button class="qa" onclick="setAmount(100000)">$100K</button>
+      </div>
+
+      <!-- Priority sliders -->
+      <div class="sliders-row">
+        <div class="slider-group">
+          <div class="slider-head">
+            <div class="slider-name">🌱 Environmental Weight</div>
+            <div class="slider-val" id="envVal" style="color: var(--green)">50%</div>
+          </div>
+          <input type="range" id="envSlider" min="0" max="100" value="50" oninput="updateSliders(false)" />
+          <div class="slider-desc">How much to prioritise carbon score vs. financial return.</div>
+        </div>
+        <div class="slider-group">
+          <div class="slider-head">
+            <div class="slider-name">📈 Financial Return Weight</div>
+            <div class="slider-val" id="finVal" style="color: var(--cyan)">50%</div>
+          </div>
+          <input type="range" id="finSlider" min="0" max="100" value="50" oninput="updateSliders(true)" />
+          <div class="slider-desc">How much to prioritise projected returns vs. environmental score.</div>
+        </div>
+      </div>
+
+      <button class="calc-btn" id="calcBtn" onclick="calculate()">
+        🌿 CALCULATE BEST GREEN INVESTMENTS
+      </button>
+    </div>
+
+    <!-- ── RESULTS (hidden until calculate() runs) ── -->
+    <div class="results-section" id="resultsSection">
+
+      <div class="results-header">
+        <div class="results-title">Your <span>Personalised Results</span></div>
+        <div class="results-meta">
+          <span id="metaAmount">$5,000 invested</span>
+          <span id="metaHorizon">3 year horizon</span>
+          <span id="metaRisk">Balanced risk</span>
+        </div>
+      </div>
+
+      <!-- Summary boxes -->
+      <div class="summary-grid" id="summaryGrid"></div>
+
+      <!-- AI recommendation -->
+      <div class="ai-rec-box">
+        <div class="ai-rec-head">
+          <div class="ai-rec-title">
+            <div class="ai-orb">🌍</div>
+            <div>
+              <div class="ai-rec-title-text">AI Investment Advisor</div>
+              <div class="ai-rec-sub">Personalised green portfolio advice powered by Claude</div>
+            </div>
+          </div>
+          <button class="ai-rec-btn" id="aiRecBtn" onclick="runAIRecommendation()">
+            🌿 Get AI Advice
+          </button>
+        </div>
+        <div class="ai-rec-progress" id="aiRecProg">
+          <div class="ai-rec-bar"></div>
+        </div>
+        <div class="ai-rec-body">
+          <div class="ai-rec-ph" id="aiRecPh">
+            Click "Get AI Advice" for a personalised portfolio recommendation based on your amount, horizon, and priorities.
+          </div>
+          <div class="ai-rec-resp" id="aiRecResp"></div>
+        </div>
+      </div>
+
+      <!-- Portfolio allocation bars -->
+      <div class="alloc-section">
+        <div class="alloc-title">Suggested Portfolio Allocation</div>
+        <div id="allocBars"></div>
+      </div>
+
+      <!-- Ranked list -->
+      <div class="section-label">Ranked Results — Best to Worst for Your Profile</div>
+      <div id="rankedList"></div>
+
+      <!-- Stocks to avoid -->
+      <div class="avoid-section" id="avoidSection"></div>
+
+      <!-- Disclaimer -->
+      <div class="disc">
+        ⚠ DISCLAIMER: All projected returns are estimates based on historical analyst consensus
+        and should not be taken as guaranteed. Carbon scores use MSCI ESG Research, S&amp;P Global
+        Trucost, and CDP disclosures. Composite scores are calculated based on your personal
+        weighting preferences. This tool is for educational and informational purposes only — it
+        does not constitute financial or investment advice. Past performance does not predict future
+        results. Always consult a qualified financial advisor before investing.
+      </div>
+    </div><!-- /results -->
+
+  </div><!-- /page -->
+
+  <!-- Scripts (order matters) -->
+  <script src="data/stocks.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/ui.js"></script>
+
+</body>
+</html>
