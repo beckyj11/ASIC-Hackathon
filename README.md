@@ -23,45 +23,6 @@ verdant/
     └── stocks.js           ← S&P 500 stock database with ESG & financial data
 ```
 
----
-
-## Quick Start (VS Code)
-
-### Option 1 — Live Server (recommended)
-
-1. Install the **Live Server** extension in VS Code  
-   *(search "Live Server" by Ritwick Dey in the Extensions panel)*
-
-2. Right-click `index.html` → **Open with Live Server**
-
-3. The app opens at `http://127.0.0.1:5500` — no build step needed!
-
-### Option 2 — Open directly
-
-Just double-click `index.html` to open it in your browser.  
-*Note: The AI analysis button requires a web server (CORS) — use Live Server for that feature.*
-
----
-
-## Enabling the AI Analysis Feature
-
-The "Get AI Advice" button calls the **Anthropic Claude API**. To use it:
-
-1. Get a free API key at [console.anthropic.com](https://console.anthropic.com)
-
-2. Open `js/ai.js` and find this line near the top:
-
-```js
-apiKey: "YOUR_ANTHROPIC_API_KEY_HERE",
-```
-
-3. Replace `YOUR_ANTHROPIC_API_KEY_HERE` with your actual key.
-
-> !! **Security warning:** Never commit your API key to GitHub or expose it publicly. !!
-> For a production deployment, proxy the API call through your own backend server.
-
----
-
 ## How It Works
 
 ### Composite Score Formula
