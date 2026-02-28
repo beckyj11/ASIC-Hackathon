@@ -1,4 +1,4 @@
-# 🌿 Green Green — A GREEN Investment Calculator
+# 🥬 Green Green — A GREEN Investment Calculator
 
 A beautiful, AI-powered S&P 500 green investment calculator that ranks stocks by a weighted composite score of **environmental carbon footprint** and **projected financial return**.
 
@@ -25,7 +25,7 @@ verdant/
 
 ---
 
-## 🚀 Quick Start (VS Code)
+## Quick Start (VS Code)
 
 ### Option 1 — Live Server (recommended)
 
@@ -57,7 +57,7 @@ apiKey: "YOUR_ANTHROPIC_API_KEY_HERE",
 
 3. Replace `YOUR_ANTHROPIC_API_KEY_HERE` with your actual key.
 
-> ⚠️ **Security warning:** Never commit your API key to GitHub or expose it publicly.  
+> !! **Security warning:** Never commit your API key to GitHub or expose it publicly. !!
 > For a production deployment, proxy the API call through your own backend server.
 
 ---
@@ -87,7 +87,7 @@ Composite Score = (Carbon Score × Env Weight%) + (Return Score × Fin Weight%)
 
 ---
 
-## 📊 Data Sources
+## Data Sources
 
 All ESG and emissions data in `data/stocks.js` is sourced from:
 
@@ -101,7 +101,7 @@ All ESG and emissions data in `data/stocks.js` is sourced from:
 
 ---
 
-## 🎨 Customisation
+## Customisation
 
 ### Adding a new stock
 
@@ -157,7 +157,7 @@ All colours are CSS custom properties in `css/styles.css`:
 
 ---
 
-## 📝 Disclaimer
+## Disclaimer
 
 This tool is for **educational and informational purposes only**.  
 It does not constitute financial or investment advice.  
@@ -166,7 +166,7 @@ Always consult a qualified financial advisor before making investment decisions.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Vanilla HTML / CSS / JavaScript** — zero dependencies, no build step
 - **Google Fonts** — Syne (display) + Space Grotesk (body)
@@ -175,4 +175,4 @@ Always consult a qualified financial advisor before making investment decisions.
 
 ---
 
-*Built with VERDANT · Powered by Claude AI · Data from MSCI, Trucost, CDP*
+*Built with GREEN GREEN · Powered by Claude AI · Data from MSCI, Trucost, CDP*
