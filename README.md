@@ -1,6 +1,6 @@
-# 🌿 VERDANT — Green Investment Calculator
+# 🌿 Green Green — A GREEN Investment Calculator
 
-A beautiful, AI-powered S&P 500 green investment calculator that ranks stocks by a composite score of **environmental carbon footprint** and **projected financial return**.
+A beautiful, AI-powered S&P 500 green investment calculator that ranks stocks by a weighted composite score of **environmental carbon footprint** and **projected financial return**.
 
 ---
 
