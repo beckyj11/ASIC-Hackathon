@@ -5,23 +5,23 @@
 
 /* ── CSS VARIABLES ── */
 :root {
-  --bg:         #060d07;
-  --surface:    #0d1a0e;
-  --surface2:   #111f12;
-  --surface3:   #162118;
-  --green:      #4ade80;
-  --green2:     #22c55e;
-  --green-dim:  rgba(74, 222, 128, 0.15);
-  --green-glow: rgba(74, 222, 128, 0.07);
-  --cyan:       #22d3ee;
-  --amber:      #fbbf24;
-  --red:        #f87171;
-  --orange:     #fb923c;
-  --border:     rgba(74, 222, 128, 0.12);
-  --border2:    rgba(74, 222, 128, 0.30);
-  --text:       #ecfdf5;
-  --text-mid:   rgba(236, 253, 245, 0.58);
-  --text-dim:   rgba(236, 253, 245, 0.28);
+  --bg:         #ffffff;
+  --surface:    #f8f8f8;
+  --surface2:   #f0f0f0;
+  --surface3:   #e8e8e8;
+  --green:      #16a34a;
+  --green2:     #15803d;
+  --green-dim:  rgba(22, 163, 74, 0.12);
+  --green-glow: rgba(22, 163, 74, 0.07);
+  --cyan:       #0e7490;
+  --amber:      #b45309;
+  --red:        #dc2626;
+  --orange:     #ea580c;
+  --border:     rgba(22, 163, 74, 0.2);
+  --border2:    rgba(22, 163, 74, 0.4);
+  --text:       #111111;
+  --text-mid:   rgba(0, 0, 0, 0.65);
+  --text-dim:   rgba(0, 0, 0, 0.4);
 }
 
 /* ── RESET & BASE ── */
@@ -44,14 +44,7 @@ body {
 
 /* Ambient radial background glow */
 body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 60% 40% at 5% 5%,  rgba(34, 197, 94, 0.07) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 50% at 95% 95%, rgba(34, 211, 238, 0.04) 0%, transparent 55%);
-  pointer-events: none;
-  z-index: 0;
+  content: none;
 }
 
 /* ── PARTICLES ── */
@@ -92,7 +85,7 @@ header {
   align-items: center;
   justify-content: space-between;
   padding: 14px 32px;
-  background: rgba(6, 13, 7, 0.92);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
 }
@@ -107,12 +100,12 @@ header {
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #15803d, #0e7490);
+  background: #16a34a;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  box-shadow: 0 0 24px rgba(34, 197, 94, 0.35);
+  box-shadow: 0 0 24px rgba(22, 163, 74, 0.25);
 }
 
 .brand-name {
@@ -120,9 +113,7 @@ header {
   font-weight: 800;
   font-size: 20px;
   letter-spacing: 3px;
-  background: linear-gradient(90deg, var(--green), var(--cyan));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--green);
 }
 
 .brand-sub {
@@ -181,15 +172,7 @@ header {
 }
 
 .calc-card::before {
-  content: '';
-  position: absolute;
-  top: -40px;
-  right: -40px;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(74, 222, 128, 0.08) 0%, transparent 70%);
-  pointer-events: none;
+  content: none;
 }
 
 .calc-title {
@@ -197,12 +180,11 @@ header {
   font-size: 22px;
   font-weight: 800;
   margin-bottom: 4px;
+  color: var(--green);
 }
 
 .calc-title span {
-  background: linear-gradient(90deg, var(--green), var(--cyan));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--green);
 }
 
 .calc-sub {
@@ -297,7 +279,7 @@ header {
 }
 
 .select-field option {
-  background: #0d1a0e;
+  background: #ffffff;
 }
 
 /* Quick amount buttons */
@@ -374,9 +356,9 @@ input[type="range"] {
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
-  height: 5px;
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.08);
+  height: 6px;
+  border-radius: 6px;
+  background: #cccccc;
   outline: none;
   cursor: pointer;
 }
@@ -384,12 +366,29 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--green);
+  border: 2px solid #ffffff;
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 6px;
+  background: #cccccc;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--green);
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 
 .slider-desc {
@@ -402,7 +401,7 @@ input[type="range"]::-webkit-slider-thumb {
 .calc-btn {
   width: 100%;
   padding: 16px;
-  background: linear-gradient(135deg, #16a34a, #0e7490);
+  background: #16a34a;
   border: none;
   border-radius: 14px;
   color: white;
@@ -463,9 +462,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .results-title span {
-  background: linear-gradient(90deg, var(--green), var(--cyan));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--green);
 }
 
 .results-meta {
@@ -501,7 +498,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 .sum-box.highlight {
   border-color: var(--border2);
-  background: linear-gradient(135deg, rgba(74, 222, 128, 0.07), rgba(34, 211, 238, 0.03));
+  background: var(--surface2);
 }
 
 .sum-val {
@@ -520,7 +517,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* AI recommendation box */
 .ai-rec-box {
-  background: linear-gradient(135deg, rgba(74, 222, 128, 0.06), rgba(34, 211, 238, 0.03));
+  background: var(--surface2);
   border: 1px solid var(--border2);
   border-radius: 16px;
   padding: 24px;
@@ -544,18 +541,18 @@ input[type="range"]::-webkit-slider-thumb {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #15803d, #0e7490);
+  background: #16a34a;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 15px;
   animation: orbpulse 3s ease-in-out infinite;
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 0 20px rgba(22, 163, 74, 0.3);
 }
 
 @keyframes orbpulse {
-  0%, 100% { box-shadow: 0 0 12px rgba(34, 197, 94, 0.3); }
-  50%       { box-shadow: 0 0 25px rgba(34, 197, 94, 0.6); }
+  0%, 100% { box-shadow: 0 0 12px rgba(22, 163, 74, 0.3); }
+  50%       { box-shadow: 0 0 25px rgba(22, 163, 74, 0.5); }
 }
 
 .ai-rec-title-text {
@@ -573,7 +570,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .ai-rec-btn {
-  background: linear-gradient(135deg, #16a34a, #0e7490);
+  background: #16a34a;
   border: none;
   color: white;
   font-family: 'Syne', sans-serif;
@@ -607,7 +604,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 .ai-rec-bar {
   height: 100%;
-  background: linear-gradient(90deg, transparent, var(--green), var(--cyan), transparent);
+  background: var(--green);
   animation: sweep 1.4s linear infinite;
   width: 35%;
 }
@@ -634,7 +631,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* ── AI RESPONSE SECTION CARDS ── */
 .ai-section {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 16px 18px;
@@ -712,7 +709,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 .alloc-bar {
   height: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.08);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -810,7 +807,7 @@ input[type="range"]::-webkit-slider-thumb {
 /* Composite score column */
 .comp-label  { font-size: 9px; color: var(--text-dim); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
 .comp-score  { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; }
-.comp-bar    { height: 5px; background: rgba(255, 255, 255, 0.07); border-radius: 5px; overflow: hidden; margin-top: 6px; width: 80px; }
+.comp-bar    { height: 5px; background: rgba(0, 0, 0, 0.08); border-radius: 5px; overflow: hidden; margin-top: 6px; width: 80px; }
 .comp-fill   { height: 100%; border-radius: 5px; transition: width 0.8s ease; }
 .comp-sub    { font-size: 9px; color: var(--text-dim); margin-top: 3px; }
 
@@ -848,7 +845,7 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 10px;
   background: rgba(251, 191, 36, 0.03);
   font-size: 10px;
-  color: rgba(251, 191, 36, 0.55);
+  color: var(--text);
   line-height: 1.7;
 }
 
