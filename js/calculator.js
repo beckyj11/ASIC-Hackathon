@@ -235,7 +235,7 @@ function calculate() {
   document.getElementById("aiRecResp").style.display = "none";
   document.getElementById("aiRecResp").textContent = "";
   document.getElementById("aiRecBtn").disabled = false;
-  document.getElementById("aiRecBtn").textContent = "🌿 Get AI Advice";
+  document.getElementById("aiRecBtn").textContent = "🌿 Get Sprout's Advice";
   document.getElementById("aiRecProg").style.display = "none";
 
   // ── Price source indicator ──

@@ -45,7 +45,7 @@ async function runAIRecommendation() {
 
   // Loading state
   btn.disabled = true;
-  btn.textContent = "⏳ Analyzing...";
+  btn.textContent = "⏳ Sprout is analyzing...";
   prog.style.display = "block";
   ph.style.display = "none";
   resp.style.display = "block";
@@ -71,7 +71,7 @@ async function runAIRecommendation() {
     .map((s) => `${s.ticker} (Grade ${s.carbonGrade}, ${s.intensity} tCO₂/$M revenue)`)
     .join(", ");
 
-  const prompt = `You are VERDANT, an expert green investment advisor specialising in S&P 500 ESG analysis. \
+  const prompt = `You are Sprout, an expert green investment advisor specialising in S&P 500 ESG analysis. \
 A user wants to invest $${amount.toLocaleString()} with a ${years}-year horizon and ${riskLabel} risk tolerance. \
 They've weighted their priorities as ${envWeight}% environmental and ${finWeight}% financial return.
 
