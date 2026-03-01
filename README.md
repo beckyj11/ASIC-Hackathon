@@ -7,7 +7,7 @@ A beautiful, AI-powered S&P 500 green investment calculator that ranks stocks by
 ## 📁 Project Structure
 
 ```
-verdant/
+green-green/
 ├── index.html              ← Main HTML entry point
 ├── README.md               ← This file
 │
