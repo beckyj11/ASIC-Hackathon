@@ -18,7 +18,7 @@ To run Green Green locally with full functionality (AI Advisor and Live Stock Pr
    ANTHROPIC_API_KEY="sk-ant-..." FINNHUB_API_KEY="c..." npm start
    ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 green-green/
