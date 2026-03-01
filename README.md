@@ -1,8 +1,6 @@
 # 🥬 Green Green — A GREEN Investment Calculator
 
-A beautiful, AI-powered S&P 500 green investment calculator that ranks stocks by a weighted composite score of **environmental carbon footprint** and **projected financial return**.
-
----
+A novel AI-powered S&P 500 green investment calculator that ranks stocks by a weighted composite score of **environmental carbon footprint** and **projected financial return**.
 
 <img width="2994" height="1516" alt="green-green-homepage" src="https://github.com/user-attachments/assets/81106393-31f0-4d64-9ef5-e35c7a5655f0" />
 
