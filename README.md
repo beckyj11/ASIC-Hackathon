@@ -141,10 +141,11 @@ Always consult a qualified financial advisor before making investment decisions.
 
 ---
 
-### 🧠 Anthropic API (AI Advisor)
+### Anthropic API (AI Advisor)
+
 The custom AI recommendation engine is powered by Claude. You will need an Anthropic API key to generate the "Get AI Advice" rationales.
 
-### 📈 Finnhub API (Live Stock Pricing)
+### Finnhub API (Live Stock Pricing)
 We use the **Finnhub REST API** to pull live, real-time market quotes for our allocation calculations.
 - Get a free API key at [finnhub.io](https://finnhub.io/)
 - The local server securely proxies requests to `/api/finnhub/quote` so your API key is never exposed to the frontend browser.
