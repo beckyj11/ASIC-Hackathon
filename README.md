@@ -4,6 +4,20 @@ A beautiful, AI-powered S&P 500 green investment calculator that ranks stocks by
 
 ---
 
+## API Keys & Setup
+
+To run Green Green locally with full functionality (AI Advisor and Live Stock Pricing), you need to start the included Node.js server with your API keys.
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Start the server with your keys:
+   ```bash
+   ANTHROPIC_API_KEY="sk-ant-..." FINNHUB_API_KEY="c..." npm start
+   ```
+
 ## 📁 Project Structure
 
 ```
@@ -126,20 +140,6 @@ All projected returns are estimates and are not guaranteed.
 Always consult a qualified financial advisor before making investment decisions.
 
 ---
-
-## API Keys & Setup
-
-To run Green Green locally with full functionality (AI Advisor and Live Stock Pricing), you need to start the included Node.js server with your API keys.
-
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-2. Start the server with your keys:
-   ```bash
-   ANTHROPIC_API_KEY="sk-ant-..." FINNHUB_API_KEY="c..." npm start
-   ```
 
 ### 🧠 Anthropic API (AI Advisor)
 The custom AI recommendation engine is powered by Claude. You will need an Anthropic API key to generate the "Get AI Advice" rationales.
