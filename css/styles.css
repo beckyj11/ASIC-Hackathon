@@ -768,7 +768,7 @@ input[type="range"]::-moz-range-thumb {
 
 .alloc-row {
   display: grid;
-  grid-template-columns: 70px 1fr 80px 90px;
+  grid-template-columns: 70px 1fr 50px 70px 90px;
   gap: 10px;
   align-items: center;
 }
@@ -793,6 +793,12 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .alloc-pct {
+  font-size: 11px;
+  color: var(--text-mid);
+  text-align: right;
+}
+
+.alloc-shares {
   font-size: 11px;
   color: var(--text-mid);
   text-align: right;

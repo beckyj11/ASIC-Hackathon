@@ -191,6 +191,7 @@ function calculate() {
     .map((s) => {
       const allocPct = Math.round((s.composite / totalComp) * 100);
       const allocAmt = amount * (allocPct / 100);
+      const shares = Math.floor(allocAmt / s.price);
       const g = gradeColor(s.carbonGrade);
       return `
         <div class="alloc-row">
@@ -199,6 +200,7 @@ function calculate() {
             <div class="alloc-fill" style="width:${allocPct}%;background:${g}"></div>
           </div>
           <div class="alloc-pct" style="color:${g}">${allocPct}%</div>
+          <div class="alloc-shares">${shares} shrs</div>
           <div class="alloc-amt">
             $${allocAmt.toLocaleString(undefined, { maximumFractionDigits: 0 })}
           </div>
@@ -374,9 +376,9 @@ function buildResultRow(s, i, amount, years) {
 
       <!-- Allocation -->
       <div>
-        <div class="res-invest-label">Your Allocation</div>
+        <div class="res-invest-label">Price per Share</div>
         <div class="res-shares">${shares} shares</div>
-        <div class="res-cost">~$${cost} spent</div>
+        <div class="res-cost">$${s.price.toFixed(2)}</div>
       </div>
 
       <!-- Projected return -->
