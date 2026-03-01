@@ -310,8 +310,11 @@ function renderRankedList() {
   if (!lastResults) return;
   const { investable, amount, years } = lastResults;
 
-  // Render the full list initially
+  // Render the list up to the Top-K limit
+  const topK = parseInt(document.getElementById("topKInput").value) || 5;
+
   document.getElementById("rankedList").innerHTML = investable
+    .slice(0, topK)
     .map((s, i) => buildResultRow(s, i, amount, years))
     .join("");
 

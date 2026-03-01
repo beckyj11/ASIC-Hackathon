@@ -824,10 +824,16 @@ input[type="range"]::-moz-range-thumb {
   margin-bottom: 12px;
 }
 
-/* Search Input */
+/* Search and Top-K filter */
 .search-container {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.search-wrapper {
   position: relative;
-  margin-bottom: 16px;
+  flex: 1;
 }
 
 .search-icon {
@@ -856,6 +862,42 @@ input[type="range"]::-moz-range-thumb {
 .search-input:focus {
   border-color: var(--green);
   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
+.top-k-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0 16px;
+}
+
+.top-k-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.top-k-input {
+  width: 48px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--border2);
+  color: var(--green);
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  padding: 4px;
+}
+
+.top-k-input:focus {
+  border-bottom-color: var(--green);
 }
 
 .search-input::placeholder {

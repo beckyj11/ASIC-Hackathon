@@ -163,9 +163,16 @@
       <div class="section-label">Ranked Results — Best to Worst for Your Profile</div>
 
       <div class="search-container">
-        <div class="search-icon">🔍</div>
-        <input type="text" id="searchInput" class="search-input" placeholder="Search by ticker or company name..."
-          oninput="filterResults()">
+        <div class="search-wrapper">
+          <div class="search-icon">🔍</div>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search by ticker or company name..."
+            oninput="filterResults()">
+        </div>
+        <div class="top-k-wrapper">
+          <label for="topKInput" class="top-k-label">Show Top:</label>
+          <input type="number" id="topKInput" class="top-k-input" value="5" min="1" max="50"
+            onchange="renderRankedList()">
+        </div>
       </div>
 
       <div id="rankedList"></div>
