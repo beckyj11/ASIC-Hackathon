@@ -4,6 +4,10 @@ A beautiful, AI-powered S&P 500 green investment calculator that ranks stocks by
 
 ---
 
+<img width="2994" height="1516" alt="green-green-homepage" src="https://github.com/user-attachments/assets/81106393-31f0-4d64-9ef5-e35c7a5655f0" />
+
+---
+
 ## API Keys & Setup
 
 To run Green Green locally with full functionality (AI Advisor and Live Stock Pricing), you need to start the included Node.js server with your API keys.
