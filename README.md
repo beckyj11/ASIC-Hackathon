@@ -4,7 +4,7 @@ A beautiful, AI-powered S&P 500 green investment calculator that ranks stocks by
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 green-green/
@@ -141,10 +141,10 @@ To run Green Green locally with full functionality (AI Advisor and Live Stock Pr
    ANTHROPIC_API_KEY="sk-ant-..." FINNHUB_API_KEY="c..." npm start
    ```
 
-### 🧠 Anthropic API (AI Advisor)
+### Anthropic API (AI Advisor)
 The custom AI recommendation engine is powered by Claude. You will need an Anthropic API key to generate the "Get AI Advice" rationales.
 
-### 📈 Finnhub API (Live Stock Pricing)
+### Finnhub API (Live Stock Pricing)
 We use the **Finnhub REST API** to pull live, real-time market quotes for our allocation calculations.
 - Get a free API key at [finnhub.io](https://finnhub.io/)
 - The local server securely proxies requests to `/api/finnhub/quote` so your API key is never exposed to the frontend browser.
