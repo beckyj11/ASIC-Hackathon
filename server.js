@@ -92,7 +92,6 @@ const server = http.createServer(async (req, res) => {
 
     const urlObj = new URL(req.url, `http://${req.headers.host}`);
     const symbol = urlObj.searchParams.get("symbol");
-    const metric = urlObj.searchParams.get("metric") || "all";
 
     if (!symbol) {
       res.writeHead(400, { "Content-Type": "application/json" });
@@ -100,7 +99,15 @@ const server = http.createServer(async (req, res) => {
     }
 
     try {
-      const upstream = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${symbol}&metric=${metric}&token=${FINN_KEY}`);
+      let upstreamUrl = "";
+      if (urlObj.pathname === "/api/finnhub/quote") {
+        upstreamUrl = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${FINN_KEY}`;
+      } else {
+        const metric = urlObj.searchParams.get("metric") || "all";
+        upstreamUrl = `https://finnhub.io/api/v1/stock/metric?symbol=${symbol}&metric=${metric}&token=${FINN_KEY}`;
+      }
+
+      const upstream = await fetch(upstreamUrl);
       const data = await upstream.json();
       res.writeHead(upstream.status, { "Content-Type": "application/json" });
       res.end(JSON.stringify(data));
@@ -141,56 +148,3 @@ server.listen(PORT, () => {
   }
 });
 
-// ── WebSocket Proxy for Finnhub ─────────────────────────────────
-const wss = new WebSocketServer({ server });
-
-wss.on('connection', (clientWs) => {
-  const FINN_KEY = process.env.FINNHUB_API_KEY;
-  if (!FINN_KEY) {
-    clientWs.send(JSON.stringify({ type: 'error', message: 'FINNHUB_API_KEY not configured' }));
-    clientWs.close();
-    return;
-  }
-
-  // Connect to Finnhub backend
-  const finnhubWs = new WebSocket(`wss://ws.finnhub.io?token=${FINN_KEY}`);
-
-  finnhubWs.on('open', () => {
-    // When the client sends subscription requests, pass them to finnhub
-    clientWs.on('message', (message) => {
-      try {
-        const msg = JSON.parse(message.toString());
-        // Simple passthrough of subscribe/unsubscribe
-        if (msg.type === 'subscribe' || msg.type === 'unsubscribe') {
-          finnhubWs.send(JSON.stringify(msg));
-        }
-      } catch (err) {
-        console.error('Invalid WS message from client', err);
-      }
-    });
-  });
-
-  finnhubWs.on('message', (data) => {
-    // Pass Finnhub trade responses securely back to the frontend client
-    if (clientWs.readyState === WebSocket.OPEN) {
-      clientWs.send(data.toString());
-    }
-  });
-
-  finnhubWs.on('error', (err) => {
-    console.error('Finnhub WS error:', err);
-  });
-
-  finnhubWs.on('close', () => {
-    if (clientWs.readyState === WebSocket.OPEN) {
-      clientWs.close();
-    }
-  });
-
-  // If the browser client disconnects, disconnect from Finnhub to save connection limits
-  clientWs.on('close', () => {
-    if (finnhubWs.readyState === WebSocket.OPEN) {
-      finnhubWs.close();
-    }
-  });
-});

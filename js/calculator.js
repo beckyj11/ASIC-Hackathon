@@ -1,5 +1,5 @@
 /**
- * GREEN GREE — Calculator Logic
+ * GREEN GREEN — Calculator Logic
  * js/calculator.js
  *
  * Handles:
@@ -503,53 +503,35 @@ function renderFinnhubData(card, data) {
   `;
 }
 
-// ── LIVE WEBSOCKET PRICING ────────────────────────────────────
+// ── LIVE REST QUOTES ──────────────────────────────────────────
 
-function initFinnhubWebsocket() {
-  // Connect to our local server proxy, which securely hits wss://ws.finnhub.io
-  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const wsUrl = `${wsProtocol}//${window.location.host}`;
-  const socket = new WebSocket(wsUrl);
+async function fetchLiveQuotes() {
+  console.log("Fetching live REST quotes for all stocks...");
 
-  socket.addEventListener('open', () => {
-    console.log("Connected to Live Pricing WS");
-
-    // Subscribe to the top S&P 500 stocks in our list
-    STOCKS.forEach(stock => {
-      // Finnhub expects just the ticker for US stocks
-      socket.send(JSON.stringify({ 'type': 'subscribe', 'symbol': stock.ticker }));
-    });
-  });
-
-  socket.addEventListener('message', (event) => {
+  // Finnhub free tier allows 60 calls/minute. We have ~13 stocks, so fetching
+  // all of them simultaneously on page load is fully within limits.
+  const promises = STOCKS.map(async (stock) => {
     try {
-      const msg = JSON.parse(event.data);
-      if (msg.type === "trade" && msg.data) {
-        let updated = false;
+      const res = await fetch(`/api/finnhub/quote?symbol=${stock.ticker}`);
+      const data = await res.json();
 
-        // A single message can contain trades for multiple symbols
-        msg.data.forEach(trade => {
-          const ticker = trade.s;
-          // grab the last price
-          const price = trade.p;
-
-          if (ticker && price) {
-            livePrices[ticker] = price;
-            updated = true;
-          }
-        });
+      // data.c = Current price from Finnhub quote endpoint
+      if (data && data.c && data.c > 0) {
+        livePrices[stock.ticker] = data.c;
       }
     } catch (err) {
-      console.warn("WS Parse Error:", err);
+      console.warn(`Failed to fetch quote for ${stock.ticker}`, err);
     }
   });
 
-  socket.addEventListener('close', () => {
-    console.log("Disconnected from Live Pricing WS");
-    // Attempt reconnect after 5s
-    setTimeout(initFinnhubWebsocket, 5000);
-  });
+  await Promise.all(promises);
+  console.log("Finished fetching live quotes.");
+
+  // If a calculation is already displayed, re-calculate silently to use the new exact prices
+  if (lastResults) {
+    silentRecalculate();
+  }
 }
 
-// Start WebSocket on load
-document.addEventListener("DOMContentLoaded", initFinnhubWebsocket);
+// Fetch all quotes once on load
+document.addEventListener("DOMContentLoaded", fetchLiveQuotes);
