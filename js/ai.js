@@ -24,7 +24,7 @@
 const CONFIG = {
   model: "claude-haiku-4-5-20251001",
   //model: "claude-sonnet-4-5-20251001",
-  maxTokens: 1000,
+  maxTokens: 1800,
   apiUrl: "/api/recommend",
 
   // Typewriter effect speed (ms per character)
@@ -90,7 +90,7 @@ TOP RECOMMENDATION
 Why the #1 stock is the best fit. Include specific shares they can buy and projected portfolio value.
 
 SUGGESTED ALLOCATION
-How to split $${amount.toLocaleString()} across 2–4 of the top stocks. Give specific dollar amounts and rationale.
+Explain why the suggested % allocation across the top 5 stocks makes sense for their goals but not what the allocatio is. 
 
 ENVIRONMENTAL IMPACT
 What choosing these stocks means for their environmental footprint vs. investing in XOM/CVX instead.
@@ -101,7 +101,7 @@ KEY RISKS TO WATCH
 FINAL VERDICT
 A crisp, confident recommendation they can act on today.
 
-End with exactly: "This is for educational purposes only and does not constitute financial advice."`;
+End with exactly: "This is for educational purposes only and does not constitute financial advice." but just once.`;
 
   try {
     const res = await fetch(CONFIG.apiUrl, {
@@ -178,8 +178,11 @@ function renderAIResponse(text, container) {
 
   container.innerHTML = "";
 
+  const bodyEls = [];
+  const bodies  = [];
+
   sections.forEach((sec, i) => {
-    const body = sec.lines.join("\n").trim();
+    const body = sec.lines.join("\n").replace(/This is for educational purposes[^.]*\./gi, "").trim();
     if (!body) return;
 
     const card = document.createElement("div");
@@ -193,19 +196,112 @@ function renderAIResponse(text, container) {
 
     const bodyEl = document.createElement("div");
     bodyEl.className = "ai-section-body";
-    bodyEl.textContent = body;
 
     card.appendChild(head);
     card.appendChild(bodyEl);
     container.appendChild(card);
+
+    if (sec.key === "SUGGESTED ALLOCATION") {
+      renderAIAllocationBars(bodyEl);
+      // Also typewrite the AI's explanation below the bars
+      const textEl = document.createElement("div");
+      textEl.className = "ai-alloc-text";
+      bodyEl.appendChild(textEl);
+      bodyEls.push(textEl);
+      bodies.push(body);
+    } else {
+      bodyEls.push(bodyEl);
+      bodies.push(body);
+    }
   });
 
-  // Disclaimer line
-  const disc = text.split("\n").find(l => l.includes("educational purposes"));
-  if (disc) {
-    const el = document.createElement("div");
-    el.className = "ai-disclaimer";
-    el.textContent = disc.trim();
-    container.appendChild(el);
+  // Disclaimer — hidden until typewriter finishes
+  const discLine = text.split("\n").find(l => l.includes("educational purposes"));
+  let discEl = null;
+  if (discLine) {
+    discEl = document.createElement("div");
+    discEl.className = "ai-disclaimer";
+    discEl.style.opacity = "0";
+    container.appendChild(discEl);
   }
+
+  // Chain typewriter effects across sections sequentially
+  function typeNext(index) {
+    if (index >= bodyEls.length) {
+      if (discEl) {
+        discEl.textContent = discLine.trim();
+        discEl.style.opacity = "1";
+      }
+      return;
+    }
+    typewriterEffect(bodyEls[index], bodies[index], CONFIG.typewriterSpeed, () => typeNext(index + 1));
+  }
+  typeNext(0);
+}
+
+// ── AI ALLOCATION VISUAL ───────────────────────────────────────
+
+function renderAIAllocationBars(container) {
+  if (!lastResults) return;
+  const { investable, amount } = lastResults;
+  const top5 = investable.slice(0, 5);
+  const totalComp = top5.reduce((a, s) => a + s.composite, 0);
+  const fills = [];
+
+  top5.forEach(s => {
+    const allocPct = Math.round((s.composite / totalComp) * 100);
+    const allocAmt = Math.round(amount * (allocPct / 100));
+    const g = gradeColor(s.carbonGrade);
+
+    const fill = document.createElement("div");
+    fill.className = "alloc-fill";
+    fill.style.width = "0%";
+    fill.style.background = g;
+
+    const bar = document.createElement("div");
+    bar.className = "alloc-bar";
+    bar.appendChild(fill);
+
+    const ticker = document.createElement("div");
+    ticker.className = "alloc-ticker";
+    ticker.style.color = g;
+    ticker.textContent = s.ticker;
+
+    const pct = document.createElement("div");
+    pct.className = "alloc-pct";
+    pct.style.color = g;
+    pct.textContent = allocPct + "%";
+
+    const amt = document.createElement("div");
+    amt.className = "alloc-amt";
+    amt.textContent = "$" + allocAmt.toLocaleString();
+
+    const row = document.createElement("div");
+    row.className = "alloc-row";
+    row.appendChild(ticker);
+    row.appendChild(bar);
+    row.appendChild(pct);
+    row.appendChild(amt);
+
+    container.appendChild(row);
+    fills.push({ el: fill, pct: allocPct });
+  });
+
+  setTimeout(() => fills.forEach(({ el, pct }) => { el.style.width = pct + "%"; }), 50);
+}
+
+// ── TYPEWRITER HELPER ──────────────────────────────────────────
+
+function typewriterEffect(element, text, speed, onDone) {
+  let i = 0;
+  element.textContent = "";
+  function tick() {
+    if (i < text.length) {
+      element.textContent += text[i++];
+      setTimeout(tick, speed);
+    } else if (onDone) {
+      onDone();
+    }
+  }
+  tick();
 }

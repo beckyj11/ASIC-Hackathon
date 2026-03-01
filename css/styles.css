@@ -805,6 +805,16 @@ input[type="range"]::-moz-range-thumb {
   text-align: right;
 }
 
+.ai-alloc-text {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
 /* Section label */
 .section-label {
   font-size: 10px;
