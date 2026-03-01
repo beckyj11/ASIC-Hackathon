@@ -22,9 +22,10 @@
  */
 
 const CONFIG = {
-  model:      "claude-haiku-4-5-20251001",
-  maxTokens:  1000,
-  apiUrl:     "/api/recommend",
+  model: "claude-haiku-4-5-20251001",
+  //model: "claude-sonnet-4-5-20251001",
+  maxTokens: 1000,
+  apiUrl: "/api/recommend",
 
   // Typewriter effect speed (ms per character)
   typewriterSpeed: 8
@@ -37,23 +38,23 @@ async function runAIRecommendation() {
 
   const { amount, years, risk, investable, avoidList } = lastResults;
 
-  const btn  = document.getElementById("aiRecBtn");
+  const btn = document.getElementById("aiRecBtn");
   const prog = document.getElementById("aiRecProg");
-  const ph   = document.getElementById("aiRecPh");
+  const ph = document.getElementById("aiRecPh");
   const resp = document.getElementById("aiRecResp");
 
   // Loading state
-  btn.disabled        = true;
-  btn.textContent     = "⏳ Analyzing...";
-  prog.style.display  = "block";
-  ph.style.display    = "none";
-  resp.style.display  = "block";
-  resp.textContent    = "";
+  btn.disabled = true;
+  btn.textContent = "⏳ Analyzing...";
+  prog.style.display = "block";
+  ph.style.display = "none";
+  resp.style.display = "block";
+  resp.textContent = "";
 
   // Build context strings
-  const top5         = investable.slice(0, 5);
-  const riskLabel    = { low: "conservative", medium: "balanced", high: "aggressive" }[risk];
-  const top5Summary  = top5
+  const top5 = investable.slice(0, 5);
+  const riskLabel = { low: "conservative", medium: "balanced", high: "aggressive" }[risk];
+  const top5Summary = top5
     .map(
       (s, i) =>
         `${i + 1}. ${s.ticker} (${s.name}) — ` +
@@ -107,9 +108,9 @@ End with exactly: "This is for educational purposes only and does not constitute
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model:      CONFIG.model,
+        model: CONFIG.model,
         max_tokens: CONFIG.maxTokens,
-        messages:   [{ role: "user", content: prompt }]
+        messages: [{ role: "user", content: prompt }]
       })
     });
 
@@ -122,8 +123,8 @@ End with exactly: "This is for educational purposes only and does not constitute
     const text = (data.content?.[0]?.text || "Analysis unavailable.").replace(/\*/g, "").replace(/---/g, "");
 
     renderAIResponse(text, resp);
-    btn.disabled       = false;
-    btn.textContent    = "🔄 Refresh Advice";
+    btn.disabled = false;
+    btn.textContent = "🔄 Refresh Advice";
     prog.style.display = "none";
 
   } catch (err) {
@@ -133,8 +134,8 @@ End with exactly: "This is for educational purposes only and does not constitute
       `  ANTHROPIC_API_KEY=sk-ant-... node server.js\n\n` +
       `Then open http://localhost:3000 (not VS Code Live Server).\n\n` +
       `Error: ${err.message}`;
-    btn.disabled       = false;
-    btn.textContent    = "🌿 Retry";
+    btn.disabled = false;
+    btn.textContent = "🌿 Retry";
     prog.style.display = "none";
   }
 }
@@ -143,12 +144,12 @@ End with exactly: "This is for educational purposes only and does not constitute
 
 function renderAIResponse(text, container) {
   const SECTIONS = [
-    { key: "YOUR INVESTMENT PROFILE", icon: "💼", accent: "var(--cyan)"   },
-    { key: "TOP RECOMMENDATION",      icon: "🏆", accent: "var(--green)"  },
-    { key: "SUGGESTED ALLOCATION",    icon: "📊", accent: "var(--green)"  },
-    { key: "ENVIRONMENTAL IMPACT",    icon: "🌍", accent: "var(--green2)" },
-    { key: "KEY RISKS TO WATCH",      icon: "⚠️", accent: "var(--amber)"  },
-    { key: "FINAL VERDICT",           icon: "✅", accent: "var(--cyan)"   },
+    { key: "YOUR INVESTMENT PROFILE", icon: "💼", accent: "var(--cyan)" },
+    { key: "TOP RECOMMENDATION", icon: "🏆", accent: "var(--green)" },
+    { key: "SUGGESTED ALLOCATION", icon: "📊", accent: "var(--green)" },
+    { key: "ENVIRONMENTAL IMPACT", icon: "🌍", accent: "var(--green2)" },
+    { key: "KEY RISKS TO WATCH", icon: "⚠️", accent: "var(--amber)" },
+    { key: "FINAL VERDICT", icon: "✅", accent: "var(--cyan)" },
   ];
 
   // Split text into labelled sections
@@ -158,7 +159,7 @@ function renderAIResponse(text, container) {
 
   for (const line of lines) {
     const upper = line.trim().toUpperCase();
-    const def   = SECTIONS.find(s => upper.includes(s.key));
+    const def = SECTIONS.find(s => upper.includes(s.key));
     if (def) {
       if (current) sections.push(current);
       current = { ...def, lines: [] };

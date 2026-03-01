@@ -11,7 +11,7 @@
  */
 
 const http = require("http");
-const fs   = require("fs");
+const fs = require("fs");
 const path = require("path");
 
 // Load .env file if present (no npm install needed)
@@ -21,21 +21,28 @@ if (fs.existsSync(envPath)) {
     .split("\n")
     .forEach(line => {
       const [key, ...rest] = line.split("=");
-      if (key && rest.length) process.env[key.trim()] = rest.join("=").trim();
+      if (key && rest.length) {
+        let val = rest.join("=").trim();
+        // Remove surrounding single or double quotes
+        if ((val.startsWith("'") && val.endsWith("'")) || (val.startsWith('"') && val.endsWith('"'))) {
+          val = val.slice(1, -1);
+        }
+        process.env[key.trim()] = val;
+      }
     });
 }
 
-const PORT    = 3000;
+const PORT = 3000;
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 
 const MIME = {
   ".html": "text/html",
-  ".css":  "text/css",
-  ".js":   "application/javascript",
+  ".css": "text/css",
+  ".js": "application/javascript",
   ".json": "application/json",
-  ".png":  "image/png",
-  ".svg":  "image/svg+xml",
-  ".ico":  "image/x-icon",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
 };
 
 const server = http.createServer(async (req, res) => {
@@ -56,8 +63,8 @@ const server = http.createServer(async (req, res) => {
         const upstream = await fetch("https://api.anthropic.com/v1/messages", {
           method: "POST",
           headers: {
-            "Content-Type":      "application/json",
-            "x-api-key":         API_KEY,
+            "Content-Type": "application/json",
+            "x-api-key": API_KEY,
             "anthropic-version": "2023-06-01",
           },
           body,
@@ -75,7 +82,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // ── Static file server ──────────────────────────────────────────
-  const urlPath  = req.url === "/" ? "/index.html" : req.url.split("?")[0];
+  const urlPath = req.url === "/" ? "/index.html" : req.url.split("?")[0];
   const filePath = path.join(__dirname, urlPath);
 
   fs.readFile(filePath, (err, data) => {
