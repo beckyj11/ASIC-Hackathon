@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GREEN GREEN — Investment Calculator</title>
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css" />
 </head>
+
 <body>
 
   <!-- Floating leaf particles -->
@@ -25,9 +29,11 @@
         <div class="brand-sub">Investment Calculator</div>
       </div>
     </div>
-    <div class="live-badge">
-      <div class="dot"></div>
-      S&P 500 LIVE
+    <div class="live-badge-container">
+      <div class="live-badge-times">
+        <div class="live-time">Current: <span id="currentTime">--:--:--</span></div>
+        <div class="live-time dim">Loaded: <span id="lastLoadedTime">--:--:--</span></div>
+      </div>
     </div>
   </header>
 
@@ -48,14 +54,7 @@
           <div class="input-label">Investment Amount</div>
           <div class="amount-wrap">
             <div class="currency-sym">$</div>
-            <input
-              type="number"
-              class="amount-input"
-              id="amountInput"
-              placeholder="1,000"
-              min="1"
-              value="5000"
-            />
+            <input type="number" class="amount-input" id="amountInput" placeholder="1,000" min="1" value="5000" />
           </div>
         </div>
         <div class="input-group">
@@ -147,7 +146,8 @@
         </div>
         <div class="ai-rec-body">
           <div class="ai-rec-ph" id="aiRecPh">
-            Click "Get AI Advice" for a personalised portfolio recommendation based on your amount, horizon, and priorities.
+            Click "Get AI Advice" for a personalised portfolio recommendation based on your amount, horizon, and
+            priorities.
           </div>
           <div class="ai-rec-resp" id="aiRecResp"></div>
         </div>
@@ -161,10 +161,20 @@
 
       <!-- Ranked list -->
       <div class="section-label">Ranked Results — Best to Worst for Your Profile</div>
+
+      <div class="search-container">
+        <div class="search-icon">🔍</div>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search by ticker or company name..."
+          oninput="filterResults()">
+      </div>
+
       <div id="rankedList"></div>
 
       <!-- Stocks to avoid -->
       <div class="avoid-section" id="avoidSection"></div>
+
+      <!-- Price Source Indicator -->
+      <div id="priceSourceIndicator" class="price-source-ind">Pricing Source: Static database records</div>
 
       <!-- Disclaimer -->
       <div class="disc">
@@ -186,4 +196,5 @@
   <script src="js/ui.js"></script>
 
 </body>
+
 </html>

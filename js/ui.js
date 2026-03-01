@@ -20,12 +20,12 @@ function spawnParticles() {
   if (!container) return;
 
   for (let i = 0; i < 18; i++) {
-    const p   = document.createElement("div");
+    const p = document.createElement("div");
     p.className = "p";
-    const size  = (Math.random() * 4 + 2).toFixed(1) + "px";
-    const dur   = (Math.random() * 14 + 10).toFixed(1) + "s";
+    const size = (Math.random() * 4 + 2).toFixed(1) + "px";
+    const dur = (Math.random() * 14 + 10).toFixed(1) + "s";
     const delay = (Math.random() * 12).toFixed(1) + "s";
-    const xPos  = (Math.random() * 100).toFixed(1) + "%";
+    const xPos = (Math.random() * 100).toFixed(1) + "%";
 
     p.style.cssText = `--s:${size};--d:${dur};--dl:${delay};--x:${xPos};`;
     container.appendChild(p);
@@ -49,10 +49,31 @@ function simulatePrices() {
   });
 }
 
+// ── LIVE CLOCK ────────────────────────────────────────────────
+
+function startLiveClock() {
+  const timeEl = document.getElementById("currentTime");
+  const loadedEl = document.getElementById("lastLoadedTime");
+
+  if (!timeEl || !loadedEl) return;
+
+  // Set loaded time once
+  const now = new Date();
+  loadedEl.textContent = now.toLocaleTimeString();
+
+  // Update current time every second
+  function tick() {
+    timeEl.textContent = new Date().toLocaleTimeString();
+  }
+  tick(); // Initial call
+  setInterval(tick, 1000);
+}
+
 // ── INIT ──────────────────────────────────────────────────────
 
 document.addEventListener("DOMContentLoaded", () => {
   spawnParticles();
+  startLiveClock(); // Start the header clock
 
   // Simulate live prices every 3 seconds
   setInterval(simulatePrices, 3000);

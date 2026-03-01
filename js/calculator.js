@@ -1,5 +1,5 @@
 /**
- * VERDANT — Calculator Logic
+ * GREEN GREE — Calculator Logic
  * js/calculator.js
  *
  * Handles:
@@ -11,9 +11,11 @@
  */
 
 // ── Global state ──────────────────────────────────────────────
-let envWeight  = 50;   // % weight for environmental score
-let finWeight  = 50;   // % weight for financial return score
+let envWeight = 50;   // % weight for environmental score
+let finWeight = 50;   // % weight for financial return score
 let lastResults = null; // cached after calculate() runs
+let currentSearchQuery = ""; // text in the search input
+let livePrices = {}; // { ticker: latestPrice }
 
 // ── SLIDER SYNC ───────────────────────────────────────────────
 /**
@@ -72,10 +74,10 @@ function formatEmissions(n) {
  * @returns {{ futureVal, gain, gainPct, annualRate }}
  */
 function projectReturn(stock, amount, years, risk) {
-  const rate      = stock.annualReturn[risk] / 100;
+  const rate = stock.annualReturn[risk] / 100;
   const futureVal = amount * Math.pow(1 + rate, years);
-  const gain      = futureVal - amount;
-  const gainPct   = (gain / amount) * 100;
+  const gain = futureVal - amount;
+  const gainPct = (gain / amount) * 100;
   return {
     futureVal,
     gain,
@@ -95,11 +97,11 @@ function projectReturn(stock, amount, years, risk) {
  * realistic min/max range in our dataset (3% – 40%).
  */
 function compositeScore(stock, risk) {
-  const annReturn  = stock.annualReturn[risk];
+  const annReturn = stock.annualReturn[risk];
   const returnScore = normalize(annReturn, 3, 40);
-  const composite  = Math.round(
+  const composite = Math.round(
     (stock.carbonScore * (envWeight / 100)) +
-    (returnScore       * (finWeight  / 100))
+    (returnScore * (finWeight / 100))
   );
   return { composite, returnScore: Math.round(returnScore), carbonScore: stock.carbonScore };
 }
@@ -108,8 +110,8 @@ function compositeScore(stock, risk) {
 
 function calculate() {
   const amount = parseFloat(document.getElementById("amountInput").value);
-  const years  = parseInt(document.getElementById("horizonSelect").value);
-  const risk   = document.getElementById("riskSelect").value;
+  const years = parseInt(document.getElementById("horizonSelect").value);
+  const risk = document.getElementById("riskSelect").value;
 
   // Validate
   if (!amount || amount <= 0) {
@@ -120,27 +122,36 @@ function calculate() {
     return;
   }
 
-  // Score every stock
+  // Score every stock, applying live price if available
+  let usedLivePrice = false;
   const scored = STOCKS.map((s) => {
-    const scores = compositeScore(s, risk);
-    const ret    = projectReturn(s, amount, years, risk);
-    return { ...s, ...scores, ...ret };
+    // Override with live WS price if we have it
+    let activePrice = s.price;
+    if (livePrices[s.ticker]) {
+      activePrice = livePrices[s.ticker];
+      usedLivePrice = true;
+    }
+    const stockWithLivePrice = { ...s, price: activePrice };
+
+    const scores = compositeScore(stockWithLivePrice, risk);
+    const ret = projectReturn(stockWithLivePrice, amount, years, risk);
+    return { ...stockWithLivePrice, ...scores, ...ret };
   }).sort((a, b) => b.composite - a.composite);
 
   const investable = scored.filter((s) => s.invest !== "AVOID");
-  const avoidList  = scored.filter((s) => s.invest === "AVOID");
+  const avoidList = scored.filter((s) => s.invest === "AVOID");
 
   lastResults = { amount, years, risk, scored, investable, avoidList };
 
   // ── Update meta tags ──
-  document.getElementById("metaAmount").textContent  = "$" + amount.toLocaleString() + " invested";
+  document.getElementById("metaAmount").textContent = "$" + amount.toLocaleString() + " invested";
   document.getElementById("metaHorizon").textContent = years + " year horizon";
-  document.getElementById("metaRisk").textContent    =
+  document.getElementById("metaRisk").textContent =
     { low: "Conservative", medium: "Balanced", high: "Aggressive" }[risk] + " risk";
 
   // ── Summary boxes ──
-  const top       = investable[0];
-  const topGain   = top.futureVal - amount;
+  const top = investable[0];
+  const topGain = top.futureVal - amount;
   const avgCarbon = Math.round(
     investable.slice(0, 3).reduce((a, s) => a + s.carbonScore, 0) / 3
   );
@@ -173,14 +184,14 @@ function calculate() {
     </div>`;
 
   // ── Portfolio allocation bars (top 5) ──
-  const top5      = investable.slice(0, 5);
+  const top5 = investable.slice(0, 5);
   const totalComp = top5.reduce((a, s) => a + s.composite, 0);
 
   document.getElementById("allocBars").innerHTML = top5
     .map((s) => {
       const allocPct = Math.round((s.composite / totalComp) * 100);
       const allocAmt = amount * (allocPct / 100);
-      const g        = gradeColor(s.carbonGrade);
+      const g = gradeColor(s.carbonGrade);
       return `
         <div class="alloc-row">
           <div class="alloc-ticker" style="color:${g}">${s.ticker}</div>
@@ -196,9 +207,9 @@ function calculate() {
     .join("");
 
   // ── Ranked list ──
-  document.getElementById("rankedList").innerHTML = investable
-    .map((s, i) => buildResultRow(s, i, amount, years))
-    .join("");
+  document.getElementById("searchInput").value = "";
+  currentSearchQuery = "";
+  renderRankedList();
 
   // ── Avoid section ──
   document.getElementById("avoidSection").innerHTML = `
@@ -220,12 +231,24 @@ function calculate() {
       .join("")}`;
 
   // ── Reset AI panel ──
-  document.getElementById("aiRecPh").style.display    = "block";
-  document.getElementById("aiRecResp").style.display  = "none";
-  document.getElementById("aiRecResp").textContent    = "";
-  document.getElementById("aiRecBtn").disabled        = false;
-  document.getElementById("aiRecBtn").textContent     = "🌿 Get AI Advice";
-  document.getElementById("aiRecProg").style.display  = "none";
+  document.getElementById("aiRecPh").style.display = "block";
+  document.getElementById("aiRecResp").style.display = "none";
+  document.getElementById("aiRecResp").textContent = "";
+  document.getElementById("aiRecBtn").disabled = false;
+  document.getElementById("aiRecBtn").textContent = "🌿 Get AI Advice";
+  document.getElementById("aiRecProg").style.display = "none";
+
+  // ── Price source indicator ──
+  const ind = document.getElementById("priceSourceIndicator");
+  if (ind) {
+    if (usedLivePrice) {
+      ind.textContent = "Pricing Source: Live Finnhub websocket data";
+      ind.classList.add("live");
+    } else {
+      ind.textContent = "Pricing Source: Static database records";
+      ind.classList.remove("live");
+    }
+  }
 
   // ── Show results ──
   document.getElementById("resultsSection").style.display = "block";
@@ -238,17 +261,77 @@ function calculate() {
   );
 }
 
+// ── SEARCH LOGIC ─────────────────────────────────────────────
+
+function filterResults() {
+  currentSearchQuery = document.getElementById("searchInput").value.toLowerCase();
+
+  const resultItems = document.querySelectorAll("#rankedList .result-item");
+  let visibleCount = 0;
+
+  resultItems.forEach((item) => {
+    // Ticker and Name elements
+    const tickerEl = item.querySelector(".res-ticker");
+    const nameEl = item.querySelector(".res-name");
+
+    // We only want the text, ignoring any nested badges
+    const tickerText = tickerEl ? tickerEl.innerText.toLowerCase() : "";
+    const nameText = nameEl ? nameEl.innerText.toLowerCase() : "";
+
+    if (tickerText.includes(currentSearchQuery) || nameText.includes(currentSearchQuery)) {
+      item.style.display = ""; // Show
+      visibleCount++;
+    } else {
+      item.style.display = "none"; // Hide
+    }
+  });
+
+  const rankedList = document.getElementById("rankedList");
+  let noResultsMsg = document.getElementById("noResultsMsg");
+
+  if (visibleCount === 0) {
+    if (!noResultsMsg) {
+      noResultsMsg = document.createElement("div");
+      noResultsMsg.id = "noResultsMsg";
+      noResultsMsg.style.textAlign = "center";
+      noResultsMsg.style.padding = "40px 20px";
+      noResultsMsg.style.color = "var(--text-dim)";
+      noResultsMsg.style.fontSize = "14px";
+      rankedList.appendChild(noResultsMsg);
+    }
+    noResultsMsg.textContent = `No stocks found matching "${currentSearchQuery}"`;
+    noResultsMsg.style.display = "block";
+  } else if (noResultsMsg) {
+    noResultsMsg.style.display = "none";
+  }
+}
+
+function renderRankedList() {
+  if (!lastResults) return;
+  const { investable, amount, years } = lastResults;
+
+  // Render the full list initially
+  document.getElementById("rankedList").innerHTML = investable
+    .map((s, i) => buildResultRow(s, i, amount, years))
+    .join("");
+
+  // Re-apply any existing search filter immediately
+  if (currentSearchQuery) {
+    filterResults();
+  }
+}
+
 // ── RESULT ROW BUILDER ────────────────────────────────────────
 
 function buildResultRow(s, i, amount, years) {
-  const rank       = i + 1;
-  const rankClass  = rank === 1 ? "rank-1" : rank === 2 ? "rank-2" : rank === 3 ? "rank-3" : "";
-  const numClass   = rank === 1 ? "gold"   : rank === 2 ? "silver"  : rank === 3 ? "bronze" : "";
-  const g          = gradeColor(s.carbonGrade);
-  const pos        = s.gainPct >= 0;
-  const shares     = Math.floor(amount / s.price);
-  const cost       = (shares * s.price).toLocaleString(undefined, { maximumFractionDigits: 0 });
-  const delay      = i * 0.07;
+  const rank = i + 1;
+  const rankClass = rank === 1 ? "rank-1" : rank === 2 ? "rank-2" : rank === 3 ? "rank-3" : "";
+  const numClass = rank === 1 ? "gold" : rank === 2 ? "silver" : rank === 3 ? "bronze" : "";
+  const g = gradeColor(s.carbonGrade);
+  const pos = s.gainPct >= 0;
+  const shares = Math.floor(amount / s.price);
+  const cost = (shares * s.price).toLocaleString(undefined, { maximumFractionDigits: 0 });
+  const delay = i * 0.07;
 
   // Dynamic badges
   const badges = [];
@@ -267,7 +350,10 @@ function buildResultRow(s, i, amount, years) {
     rank === 1 ? "BEST" : rank === 2 ? "2ND" : rank === 3 ? "3RD" : rank + "TH";
 
   return `
-  <div class="result-item ${rankClass}" style="animation-delay:${delay}s">
+  <div class="result-item ${rankClass}" style="animation-delay:${delay}s" 
+       onmouseenter="showFinnhubHover(event, '${s.ticker}')"
+       onmousemove="moveFinnhubHover(event)"
+       onmouseleave="hideFinnhubHover()">
     <div class="result-main">
 
       <!-- Rank -->
@@ -336,5 +422,134 @@ function buildResultRow(s, i, amount, years) {
       </div>
 
     </div>
+    <!-- Removed Finnhub Hover Card from here -->
   </div>`;
 }
+
+// ── FINNHUB HOVER LOGIC ───────────────────────────────────────
+const finnhubCache = {};
+let hoverCardEl = null;
+
+function initFinnhubTooltip() {
+  if (!hoverCardEl) {
+    hoverCardEl = document.createElement("div");
+    hoverCardEl.className = "finnhub-hover-card";
+    document.body.appendChild(hoverCardEl);
+  }
+}
+
+async function showFinnhubHover(event, symbol) {
+  initFinnhubTooltip();
+  hoverCardEl.classList.add("visible");
+  moveFinnhubHover(event);
+
+  if (finnhubCache[symbol]) {
+    renderFinnhubData(hoverCardEl, finnhubCache[symbol]);
+    return;
+  }
+
+  hoverCardEl.innerHTML = `<div class="finnhub-title">Basic Financials (Finnhub)</div><div style="font-size:12px;color:var(--text-dim);text-align:center;padding:10px;">Loading financials...</div>`;
+
+  try {
+    const res = await fetch(`/api/finnhub?symbol=${symbol}&metric=all`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+
+    finnhubCache[symbol] = data;
+    renderFinnhubData(hoverCardEl, data);
+  } catch (err) {
+    hoverCardEl.innerHTML = `<div class="finnhub-error">Could not load financials: ${err.message}</div>`;
+  }
+}
+
+function moveFinnhubHover(event) {
+  if (!hoverCardEl) return;
+
+  // Offset a bit so the cursor doesn't block the tooltip
+  let x = event.clientX + 15;
+  let y = event.clientY + 15;
+
+  // Keep tooltip on screen
+  const rect = hoverCardEl.getBoundingClientRect();
+  if (x + rect.width > window.innerWidth) x = window.innerWidth - rect.width - 10;
+  if (y + rect.height > window.innerHeight) y = window.innerHeight - rect.height - 10;
+
+  hoverCardEl.style.left = x + "px";
+  hoverCardEl.style.top = y + "px";
+}
+
+function hideFinnhubHover() {
+  if (hoverCardEl) {
+    hoverCardEl.classList.remove("visible");
+  }
+}
+
+function renderFinnhubData(card, data) {
+  if (!data || !data.metric) {
+    card.innerHTML = `<div class="finnhub-error">No financial data available</div>`;
+    return;
+  }
+  const m = data.metric;
+  card.innerHTML = `
+    <div class="finnhub-title">Basic Financials (Finnhub)</div>
+    <div class="finnhub-grid">
+      <div class="f-stat"><span class="f-lbl">P/E (TTM)</span><span class="f-val">${m.peExclExtraTTM ? m.peExclExtraTTM.toFixed(2) : '-'}</span></div>
+      <div class="f-stat"><span class="f-lbl">Beta</span><span class="f-val">${m.beta ? m.beta.toFixed(2) : '-'}</span></div>
+      <div class="f-stat"><span class="f-lbl">52w High</span><span class="f-val">$${m['52WeekHigh'] ? m['52WeekHigh'].toFixed(2) : '-'}</span></div>
+      <div class="f-stat"><span class="f-lbl">52w Low</span><span class="f-val">$${m['52WeekLow'] ? m['52WeekLow'].toFixed(2) : '-'}</span></div>
+      <div class="f-stat"><span class="f-lbl">EPS (TTM)</span><span class="f-val">$${m.epsTTM ? m.epsTTM.toFixed(2) : '-'}</span></div>
+      <div class="f-stat"><span class="f-lbl">Vol (10d)</span><span class="f-val">${m['10DayAverageTradingVolume'] ? m['10DayAverageTradingVolume'].toFixed(2) + 'M' : '-'}</span></div>
+    </div>
+  `;
+}
+
+// ── LIVE WEBSOCKET PRICING ────────────────────────────────────
+
+function initFinnhubWebsocket() {
+  // Connect to our local server proxy, which securely hits wss://ws.finnhub.io
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = `${wsProtocol}//${window.location.host}`;
+  const socket = new WebSocket(wsUrl);
+
+  socket.addEventListener('open', () => {
+    console.log("Connected to Live Pricing WS");
+
+    // Subscribe to the top S&P 500 stocks in our list
+    STOCKS.forEach(stock => {
+      // Finnhub expects just the ticker for US stocks
+      socket.send(JSON.stringify({ 'type': 'subscribe', 'symbol': stock.ticker }));
+    });
+  });
+
+  socket.addEventListener('message', (event) => {
+    try {
+      const msg = JSON.parse(event.data);
+      if (msg.type === "trade" && msg.data) {
+        let updated = false;
+
+        // A single message can contain trades for multiple symbols
+        msg.data.forEach(trade => {
+          const ticker = trade.s;
+          // grab the last price
+          const price = trade.p;
+
+          if (ticker && price) {
+            livePrices[ticker] = price;
+            updated = true;
+          }
+        });
+      }
+    } catch (err) {
+      console.warn("WS Parse Error:", err);
+    }
+  });
+
+  socket.addEventListener('close', () => {
+    console.log("Disconnected from Live Pricing WS");
+    // Attempt reconnect after 5s
+    setTimeout(initFinnhubWebsocket, 5000);
+  });
+}
+
+// Start WebSocket on load
+document.addEventListener("DOMContentLoaded", initFinnhubWebsocket);

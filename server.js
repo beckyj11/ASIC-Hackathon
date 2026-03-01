@@ -13,6 +13,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const { WebSocketServer, WebSocket } = require("ws");
 
 // Load .env file if present (no npm install needed)
 const envPath = path.join(__dirname, ".env");
@@ -81,6 +82,35 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // ── Proxy: GET /api/finnhub → Finnhub ─────────────────────────
+  if (req.method === "GET" && req.url.startsWith("/api/finnhub")) {
+    const FINN_KEY = process.env.FINNHUB_API_KEY;
+    if (!FINN_KEY) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: { message: "FINNHUB_API_KEY not set in .env" } }));
+    }
+
+    const urlObj = new URL(req.url, `http://${req.headers.host}`);
+    const symbol = urlObj.searchParams.get("symbol");
+    const metric = urlObj.searchParams.get("metric") || "all";
+
+    if (!symbol) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: { message: "Missing symbol param" } }));
+    }
+
+    try {
+      const upstream = await fetch(`https://finnhub.io/api/v1/stock/metric?symbol=${symbol}&metric=${metric}&token=${FINN_KEY}`);
+      const data = await upstream.json();
+      res.writeHead(upstream.status, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(data));
+    } catch (err) {
+      res.writeHead(502, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: { message: err.message } }));
+    }
+    return;
+  }
+
   // ── Static file server ──────────────────────────────────────────
   const urlPath = req.url === "/" ? "/index.html" : req.url.split("?")[0];
   const filePath = path.join(__dirname, urlPath);
@@ -99,9 +129,68 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(`\nVerdant running at http://localhost:${PORT}\n`);
   if (API_KEY) {
-    console.log("✓ API key loaded");
+    console.log("✓ Anthropic API key loaded");
   } else {
     console.log("✗ No ANTHROPIC_API_KEY set — run as:");
     console.log("  ANTHROPIC_API_KEY=sk-ant-... node server.js\n");
   }
+  if (process.env.FINNHUB_API_KEY) {
+    console.log("✓ Finnhub API key loaded");
+  } else {
+    console.log("✗ No FINNHUB_API_KEY set");
+  }
+});
+
+// ── WebSocket Proxy for Finnhub ─────────────────────────────────
+const wss = new WebSocketServer({ server });
+
+wss.on('connection', (clientWs) => {
+  const FINN_KEY = process.env.FINNHUB_API_KEY;
+  if (!FINN_KEY) {
+    clientWs.send(JSON.stringify({ type: 'error', message: 'FINNHUB_API_KEY not configured' }));
+    clientWs.close();
+    return;
+  }
+
+  // Connect to Finnhub backend
+  const finnhubWs = new WebSocket(`wss://ws.finnhub.io?token=${FINN_KEY}`);
+
+  finnhubWs.on('open', () => {
+    // When the client sends subscription requests, pass them to finnhub
+    clientWs.on('message', (message) => {
+      try {
+        const msg = JSON.parse(message.toString());
+        // Simple passthrough of subscribe/unsubscribe
+        if (msg.type === 'subscribe' || msg.type === 'unsubscribe') {
+          finnhubWs.send(JSON.stringify(msg));
+        }
+      } catch (err) {
+        console.error('Invalid WS message from client', err);
+      }
+    });
+  });
+
+  finnhubWs.on('message', (data) => {
+    // Pass Finnhub trade responses securely back to the frontend client
+    if (clientWs.readyState === WebSocket.OPEN) {
+      clientWs.send(data.toString());
+    }
+  });
+
+  finnhubWs.on('error', (err) => {
+    console.error('Finnhub WS error:', err);
+  });
+
+  finnhubWs.on('close', () => {
+    if (clientWs.readyState === WebSocket.OPEN) {
+      clientWs.close();
+    }
+  });
+
+  // If the browser client disconnects, disconnect from Finnhub to save connection limits
+  clientWs.on('close', () => {
+    if (finnhubWs.readyState === WebSocket.OPEN) {
+      finnhubWs.close();
+    }
+  });
 });
